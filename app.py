@@ -77,12 +77,17 @@ def run_scraper(keyword, city, max_results, no_emails, headless, timeout):
             "maps_scraper.py",
             "--keyword", keyword,
             "--city", city,
-            "--verbose",
-            "--timeout", str(timeout)
+            "--verbose"
         ]
         
-        if headless:
+        # headless should be True by default (headless=False when headless is passed as False)
+        if not headless:
+            # Only add --headless if we want headless mode
+            pass
+        else:
             cmd.append("--headless")
+        
+        cmd.extend(["--timeout", str(timeout)])
         
         if max_results:
             cmd.extend(["--max-results", str(max_results)])
@@ -93,12 +98,13 @@ def run_scraper(keyword, city, max_results, no_emails, headless, timeout):
         scraper_status["message"] = "🚀 Launching browser..."
         scraper_status["progress"] = 5
         
-        # Run scraper
+        # Run scraper with timeout
         result = subprocess.run(
             cmd,
             capture_output=True,
             text=True,
-            cwd=os.path.dirname(os.path.abspath(__file__))
+            cwd=os.path.dirname(os.path.abspath(__file__)),
+            timeout=timeout + 30  # Add 30s buffer
         )
         
         scraper_status["progress"] = 75
